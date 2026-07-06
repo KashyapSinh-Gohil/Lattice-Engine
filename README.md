@@ -111,15 +111,7 @@ PROJECT=your-project REGION=asia-south1 bash infra/deploy_cloudrun.sh
 - Telemetry aggregated at feeder/transformer and canal-gate levels
 - Compliant with India's DPDP Act 2023 and NDSAP guidelines
 
-## Security
 
-Six-check security audit (`python agent/security_audit.py .`):
-1. Credential scan (API keys, tokens, passwords)
-2. `.env` file detection
-3. `.gitignore` validation
-4. CORS configuration review
-5. Debug mode detection
-6. Dependency pinning verification
 
 ## License
 
