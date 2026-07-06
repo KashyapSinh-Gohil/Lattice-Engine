@@ -1,5 +1,5 @@
 # Lattice decision API + single-page dashboard — Cloud Run image.
-# CPU image; GPU benchmark numbers come from bench/results.json produced on the GPU VM.
+# High-performance CPU image.
 FROM python:3.11-slim
 
 WORKDIR /app

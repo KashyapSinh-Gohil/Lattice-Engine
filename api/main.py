@@ -144,7 +144,7 @@ class AgroStore:
 grid = GridStore()
 agro = AgroStore()
 app = FastAPI(title="Lattice Decision API", version="2.0",
-              description="GPU-accelerated resource allocation engine for grid + agriculture")
+              description="High-performance resource allocation engine for grid + agriculture")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
                    allow_headers=["*"])
 

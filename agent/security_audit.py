@@ -4,7 +4,7 @@ import re
 import sys
 
 def audit_security(root_dir):
-    print(f"=== VAJRA SECURITY AUDIT ON: {root_dir} ===")
+    print(f"=== LATTICE SECURITY AUDIT ON: {root_dir} ===")
     failed = False
 
     # Check 1: Private Keys and API Keys scanning

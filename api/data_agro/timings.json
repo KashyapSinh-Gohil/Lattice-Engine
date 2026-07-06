@@ -3,28 +3,28 @@
   "domain": "agro",
   "env": {
     "engine": "cpu",
-    "python": "3.10.12",
+    "python": "3.12.2",
     "cudf": null,
     "gpu_name": null,
     "cupy": false,
-    "pandas": "2.3.3"
+    "pandas": "2.2.3"
   },
-  "rows_in": 982080,
+  "rows_in": 960000,
   "rows_clean": 960000,
   "stages": {
-    "1_ingest": 0.132,
-    "2_clean_gapfill": 12.815,
-    "3_join_enrich": 0.473,
-    "4_aggregate": 0.323,
-    "5_features": 0.108,
-    "6_yield_models": 0.415,
-    "7_priority_trigger": 0.047,
-    "8_allocate_bench": 2.474,
-    "9_write_outputs": 0.453
+    "1_ingest": 0.223,
+    "2_clean_gapfill": 8.312,
+    "3_join_enrich": 0.455,
+    "4_aggregate": 0.378,
+    "5_features": 0.088,
+    "6_yield_models": 1.309,
+    "7_priority_trigger": 0.037,
+    "8_allocate_bench": 2.258,
+    "9_write_outputs": 0.332
   },
-  "total_seconds": 17.24,
+  "total_seconds": 13.39,
   "dispatch_block_seconds": 900,
   "fits_in_block": true,
   "blocks_needed": 1,
-  "whatif_plans_per_second": 82368
+  "whatif_plans_per_second": 90532
 }

@@ -1,6 +1,6 @@
 # Lattice
 
-**GPU-Accelerated Resource Allocation Engine**
+**Resource Allocation Engine**
 
 > One engine for two climate-stressed lifelines: power and food.
 
@@ -14,16 +14,16 @@ fairness-aware allocation plans refreshed inside the operating window.
 ## Architecture
 
 ```
-Synthetic Telemetry ──→ cudf.pandas / CuPy pipeline ──→ XGBoost risk models ──→ Decision API
-                                                                                    │
-                                                   Single-page dashboard (Next.js) ←┘
+Synthetic Telemetry ──→ pandas pipeline ──→ XGBoost risk models ──→ Decision API
+                                                                      │
+                                     Single-page dashboard (Next.js) ←┘
 ```
 
 | Component | Technology |
 |-----------|-----------|
 | Data generation | Python synthetic generators with real Gujarat geometry |
-| Feature pipeline | cudf.pandas (GPU) / pandas (CPU) with hot-swap |
-| Risk models | XGBoost (GPU-accelerated on T4/A100) |
+| Feature pipeline | pandas (CPU) |
+| Risk models | XGBoost |
 | Decisioning | Vectorized what-if evaluator (500k plans/second) |
 | API | FastAPI with hot-reload artifacts |
 | Frontend | Next.js 16 static export, Leaflet maps, Chart.js |
@@ -48,7 +48,6 @@ Synthetic Telemetry ──→ cudf.pandas / CuPy pipeline ──→ XGBoost risk
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
-- (Optional) NVIDIA GPU with CUDA for GPU acceleration
 
 ### Local Development
 
@@ -84,10 +83,7 @@ Open [http://localhost:8080](http://localhost:8080) — single-page dashboard wi
 PROJECT=your-project REGION=asia-south1 bash infra/deploy_cloudrun.sh
 ```
 
-### GPU Benchmarking (Colab)
 
-Upload `bench/gpu_benchmark.ipynb` to Google Colab with a T4 runtime and execute all cells.
-Results are saved to `bench/results.json` and displayed in the Acceleration tab.
 
 ## Project Structure
 
@@ -100,7 +96,7 @@ Results are saved to `bench/results.json` and displayed in the Acceleration tab.
 ├── agro/             # Agriculture pipeline + risk models
 ├── agent/            # Gemini Copilot + security audit
 ├── data_gen/         # Synthetic data generators
-├── bench/            # GPU benchmarking notebooks + results
+├── bench/            # CPU benchmarking notebooks + results
 ├── frontend/         # Next.js 16 single-page dashboard
 │   └── src/app/
 │       └── page.tsx  # Unified dashboard (Grid + Agro)

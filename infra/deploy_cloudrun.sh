@@ -6,6 +6,7 @@ set -euo pipefail
 PROJECT="${PROJECT:?set PROJECT}"
 REGION="${REGION:-asia-south1}"
 SVC="${SVC:-lattice}"
+GEMINI_API_KEY="${GEMINI_API_KEY:-}"
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
   artifactregistry.googleapis.com --project "$PROJECT"

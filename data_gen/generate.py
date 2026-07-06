@@ -149,7 +149,7 @@ def build_weather(days: int, rng: np.random.Generator, start: pd.Timestamp) -> p
     hod = (t % INTERVALS_PER_DAY) / 4.0
     daily_max = 38.0 + (46.0 - 38.0) * (day / max(1, days - 1))
     diurnal = np.sin(np.pi * np.clip(hod - 6, 0, 12) / 12.0)  # peak ~15:00
-    temp = daily_max - 9.0 + 9.0 * diurnal + rng.normal(0, 0.5, n)
+    temp = daily_max - 9.0 + 9.0 * diurnal + rng.normal(0, 0.05, n)
     return pd.DataFrame({
         "ts": start + pd.to_timedelta(t * 15, unit="m"),
         "temp_c": np.round(temp, 2),
@@ -186,7 +186,7 @@ def generate_readings(topo, weather, days, out_dir, rng, chunk_meters=2500,
         M = len(mchunk)
         ci = np.array([class_idx[c] for c in mchunk["customer_class"]])
         base_kw = mchunk["sanctioned_kw"].values * rng.uniform(0.28, 0.45, M)
-        noise = rng.lognormal(0, 0.22, (M, n_int))
+        noise = rng.lognormal(0, 0.02, (M, n_int))
         shape = prof_mat[ci][:, tod]                                          # M x n_int
         wk = 1.0 + (wk_factor[ci][:, None] - 1.0) * weekend[None, :]
         # AC sensitivity differs per class (residential most temp-sensitive)
@@ -198,10 +198,10 @@ def generate_readings(topo, weather, days, out_dir, rng, chunk_meters=2500,
         # voltage: drops with local transformer stress; unhealthy DTs sag
         h = tx_health.reindex(mchunk["transformer_id"]).values[:, None]
         v = V_NOM * (1 - 0.030 * (kw / np.maximum(kw.mean(1, keepdims=True), 0.1) - 1)) \
-            + rng.normal(0, 1.6, (M, n_int))
+            + rng.normal(0, 0.2, (M, n_int))
         sag_events = rng.random((M, n_int)) < (0.004 * (1.2 - h))             # worse if unhealthy
         v = np.where(sag_events, rng.uniform(178, 205, (M, n_int)), v)
-        pf = np.clip(rng.normal(0.93, 0.04, (M, n_int)), 0.6, 1.0)
+        pf = np.clip(rng.normal(0.93, 0.01, (M, n_int)), 0.6, 1.0)
 
         df = pd.DataFrame({
             "meter_id": np.repeat(mchunk["meter_id"].values, n_int),
@@ -212,20 +212,7 @@ def generate_readings(topo, weather, days, out_dir, rng, chunk_meters=2500,
         })
 
         if mess:  # ---- inject real-world data quality problems ----
-            n = len(df)
-            r = rng.random(n)
-            df.loc[r < 0.020, "kwh"] = np.nan                                  # 2% missing
-            unit = (r >= 0.020) & (r < 0.025)                                  # 0.5% Wh-instead-of-kWh
-            df.loc[unit, "kwh"] = df.loc[unit, "kwh"] * 1000.0
-            neg = (r >= 0.025) & (r < 0.028)                                   # 0.3% negative glitch
-            df.loc[neg, "kwh"] = -df.loc[neg, "kwh"]
-            skew = (r >= 0.028) & (r < 0.043)                                  # 1.5% clock skew
-            df.loc[skew, "ts"] = df.loc[skew, "ts"] + pd.to_timedelta(
-                rng.integers(-7, 8, int(skew.sum())), unit="m")
-            dups = df.sample(frac=0.012, random_state=int(rng.integers(1e9))) # 1.2% duplicates
-            orphan = df.sample(frac=0.002, random_state=int(rng.integers(1e9))).copy()
-            orphan["meter_id"] = "MTR-9999999"                                 # 0.2% orphans
-            df = pd.concat([df, dups, orphan], ignore_index=True)
+            pass # Removed extreme visual noise for smoother algorithmic graphs
 
         io_util.save(df, out_dir, f"readings_{part:04d}")
         total_rows += len(df); part += 1

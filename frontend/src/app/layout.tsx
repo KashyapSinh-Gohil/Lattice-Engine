@@ -18,8 +18,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Lattice — GPU-Accelerated Resource Allocation Engine",
-  description: "Unified decision engine for power grid load dispatch and agricultural water allocation. GPU-accelerated, fairness-aware, explainable.",
+  title: "Lattice — High-Performance Resource Allocation Engine",
+  description: "Unified decision engine for power grid load dispatch and agricultural water allocation. Fairness-aware, explainable.",
 };
 
 export default function RootLayout({

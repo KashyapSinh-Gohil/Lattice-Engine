@@ -60,6 +60,7 @@ export default function LatticeDashboard() {
   const mapRef = useRef<any>(null);
   const mapInstanceRef = useRef<any>(null);
   const layerGroupRef = useRef<any>(null);
+  const lastDomainRef = useRef<string | null>(null);
   const chartCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<any>(null);
   const msgsEndRef = useRef<HTMLDivElement | null>(null);
@@ -157,8 +158,11 @@ export default function LatticeDashboard() {
 
       if (!mapInstanceRef.current) {
         const map = L.map(mapEl, { zoomControl: false, attributionControl: false })
-          .setView([23.03, 72.58], 11);
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { maxZoom: 18 }).addTo(map);
+          .setView([22.30, 70.80], 9);
+        L.tileLayer(darkMode
+          ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+          { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
         mapInstanceRef.current = map;
         layerGroupRef.current = L.layerGroup().addTo(map);
       }
@@ -168,32 +172,42 @@ export default function LatticeDashboard() {
       lg.clearLayers();
 
       const getPolygonPoints = (lat: number, lon: number, r: number, idx: number, sides: number = 7) => {
+        const hash = (n: number) => { let h = Math.sin(n) * 43758.5453123; return h - Math.floor(h); };
+        const numSides = sides === 8 ? 5 + Math.floor(hash(idx) * 3) : sides;
         const pts: [number, number][] = [];
-        const seed = idx * 1.5;
-        for (let i = 0; i < sides; i++) {
-          const a = (i * 2 * Math.PI) / sides;
-          const rr = r * (0.8 + 0.35 * Math.sin(a * 3.14 + seed));
-          pts.push([lat + (rr * Math.cos(a)) / 111320, lon + (rr * Math.sin(a)) / (111320 * Math.cos((lat * Math.PI) / 180))]);
+        let currentAngle = hash(idx) * Math.PI; 
+        for (let i = 0; i < numSides; i++) {
+          const angleStep = (2 * Math.PI) / numSides;
+          const angleJitter = (hash(idx + i) - 0.5) * (angleStep * 0.5);
+          currentAngle += angleStep + angleJitter;
+          const rad = r * (0.6 + 0.6 * hash(idx * 10 + i)); 
+          pts.push([
+            lat + (rad / 111000) * Math.cos(currentAngle),
+            lon + (rad / (111000 * Math.cos((lat * Math.PI) / 180))) * Math.sin(currentAngle)
+          ]);
         }
         return pts;
       };
 
+      const isDomainSwitch = lastDomainRef.current !== domain;
+      lastDomainRef.current = domain;
+
       if (domain === "grid") {
-        const fciColor = (v: number) => v > 0.66 ? "#d9383a" : v > 0.4 ? "#f2a104" : "#2b9348";
-        feeders.forEach((f, idx) => {
+        const fciColor = (f: number) => f > 0.8 ? "#d9383a" : f > 0.5 ? "#f2a104" : "#2b9348";
+        feeders.slice(0, 400).forEach((f, idx) => {
           const isSel = selectedFeederId === f.feeder_id;
-          const poly = L.polygon(getPolygonPoints(f.lat, f.lon, 500 + f.current_mw * 90, idx), {
-            color: isSel ? "#000000" : "#333333", weight: isSel ? 3.5 : 1.2,
-            fillColor: fciColor(f.fci), fillOpacity: isSel ? 0.85 : 0.45,
+          const poly = L.polygon(getPolygonPoints(f.lat, f.lon, 500 + f.current_mw * 90, idx, 6), {
+            color: isSel ? "#000000" : "#555555", weight: isSel ? 3.5 : 1,
+            fillColor: fciColor(f.fci), fillOpacity: isSel ? 0.9 : 0.45,
           });
-          poly.bindTooltip(`<b>${f.name}</b> ${f.feeder_id}<br/>FCI ${f.fci.toFixed(2)} · ${f.current_mw.toFixed(1)} MW · ${f.is_protected ? "PROTECTED (" + f.critical_type + ")" : "sheddable"}`);
-          poly.on("click", () => { setSelectedFeederId(prev => prev === f.feeder_id ? null : f.feeder_id); map.setView([f.lat, f.lon], 13); });
+          poly.bindTooltip(`<b>${f.name}</b> (${f.feeder_id})<br/>FCI: <b>${f.fci.toFixed(2)}</b><br/>Load: ${f.current_mw.toFixed(1)} MW<br/>Outages: ${f.failure_history?.length || 0}${f.protected_class ? "<br/><b style='color:#d9383a'>PROTECTED</b>" : ""}`, { direction: "top", opacity: 0.95 });
+          poly.on("click", () => { setSelectedFeederId(f.feeder_id); });
           lg.addLayer(poly);
-          if (f.is_protected) {
-            lg.addLayer(L.marker([f.lat, f.lon], { icon: L.divIcon({ className: "", html: '<div style="color:#8b5cf6;font-weight:bold;font-size:14px;filter:drop-shadow(0 0 4px #fff)">◆</div>', iconSize: [12, 12] as any }) }));
+          if (f.protected_class) {
+            lg.addLayer(L.marker([f.lat, f.lon], { icon: L.divIcon({ className: "", html: `<div style="font-size:10px;font-weight:bold;color:#d9383a">★</div>`, iconSize: [12, 12] }) }));
           }
         });
-        map.setView([23.03, 72.58], 11);
+        if (isDomainSwitch) map.setView([22.2587, 71.1924], 9);
       } else {
         const vapiColor = (v: number) => v > 0.6 ? "#d9383a" : v > 0.38 ? "#f2a104" : "#2b9348";
         villages.slice(0, 600).forEach((v, idx) => {
@@ -209,10 +223,10 @@ export default function LatticeDashboard() {
             lg.addLayer(L.marker([v.lat, v.lon], { icon: L.divIcon({ className: "", html: `<div style="font-size:9px;font-weight:bold;color:#000;background:#fff;border:1px solid #000;padding:0 4px;border-radius:3px;box-shadow:2px 2px 0 #000">TAIL</div>`, iconSize: [30, 10] }) }));
           }
         });
-        map.setView([17.97, 79.6], 9);
+        if (isDomainSwitch) map.setView([22.30, 70.80], 9);
       }
     });
-  }, [loading, domain, feeders, villages, selectedFeederId, selectedVillageId]);
+  }, [loading, domain, feeders, villages, selectedFeederId, selectedVillageId, darkMode]);
 
   // ═══════════════════════════════════════════════
   //  Chart Rendering — responds to domain switch
@@ -221,6 +235,11 @@ export default function LatticeDashboard() {
     if (loading || !chartCanvasRef.current) return;
     const sys = domain === "grid" ? gridSys : agroSys;
     if (!sys) return;
+
+    const txtColor = darkMode ? "#ffffff" : "#000000";
+    const dimColor = darkMode ? "#a0a0a0" : "#555555";
+    const gridColor = darkMode ? "#333333" : "#e0e0e0";
+    const chartBg = darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
 
     let chartInstance: any;
     import("chart.js/auto").then(({ Chart }) => {
@@ -237,8 +256,8 @@ export default function LatticeDashboard() {
           data: {
             labels,
             datasets: [
-              { label: "Load MW", data: hist.map((p: any) => p.y), borderColor: "#000000", backgroundColor: "rgba(0,0,0,0.05)", fill: true, pointRadius: 0, borderWidth: 3, tension: 0.3 },
-              { label: "Forecast MW", data: [...Array(hist.length - 1).fill(null), hist.at(-1)?.y, ...fc.map((p: any) => p.y)], borderColor: "#888888", borderDash: [6, 4], pointRadius: 0, borderWidth: 2.5, tension: 0.3 },
+              { label: "Load MW", data: hist.map((p: any) => p.y), borderColor: txtColor, backgroundColor: chartBg, fill: true, pointRadius: 0, borderWidth: 3, tension: 0.3 },
+              { label: "Forecast MW", data: [...Array(hist.length - 1).fill(null), hist.at(-1)?.y, ...fc.map((p: any) => p.y)], borderColor: dimColor, borderDash: [6, 4], pointRadius: 0, borderWidth: 2.5, tension: 0.3 },
               { label: "Supply cap", data: Array(labels.length).fill(sys.supply_cap_mw), borderColor: "#d9383a", borderDash: [3, 4], pointRadius: 0, borderWidth: 2 },
               { label: "Temp C", yAxisID: "y1", data: temps.slice(-hist.length).map((p: any) => p.y), borderColor: "#8b5cf6", pointRadius: 0, borderWidth: 1.5 },
             ],
@@ -246,10 +265,10 @@ export default function LatticeDashboard() {
           options: {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: "index", intersect: false },
-            plugins: { legend: { labels: { color: "#000", boxWidth: 14, font: { family: "JetBrains Mono", size: 11 } } } },
+            plugins: { legend: { labels: { color: txtColor, boxWidth: 14, font: { family: "JetBrains Mono", size: 11 } } } },
             scales: {
-              x: { ticks: { color: "#000", maxTicksLimit: 12, font: { family: "JetBrains Mono" } }, grid: { color: "#e0e0e0" } },
-              y: { ticks: { color: "#000", font: { family: "JetBrains Mono" } }, grid: { color: "#e0e0e0" }, title: { display: true, text: "MW", color: "#000", font: { family: "JetBrains Mono" } } },
+              x: { ticks: { color: txtColor, maxTicksLimit: 12, font: { family: "JetBrains Mono" } }, grid: { color: gridColor } },
+              y: { ticks: { color: txtColor, font: { family: "JetBrains Mono" } }, grid: { color: gridColor }, title: { display: true, text: "MW", color: txtColor, font: { family: "JetBrains Mono" } } },
               y1: { position: "right", ticks: { color: "#8b5cf6", font: { family: "JetBrains Mono" } }, grid: { display: false } },
             },
           },
@@ -263,18 +282,18 @@ export default function LatticeDashboard() {
           data: {
             labels,
             datasets: [
-              { label: "Mean NDVI", data: nd.map((p: any) => p.ndvi), borderColor: "#000", backgroundColor: "rgba(0,0,0,0.03)", fill: true, pointRadius: 0, borderWidth: 2, tension: 0.3, yAxisID: "y" },
-              { label: "Rainfall (mm)", type: "bar", data: rn.map((p: any) => p.rain), backgroundColor: "rgba(85,85,85,0.45)", borderWidth: 1.5, borderColor: "#000", yAxisID: "y1" } as any,
+              { label: "Mean NDVI", data: nd.map((p: any) => p.ndvi), borderColor: txtColor, backgroundColor: chartBg, fill: true, pointRadius: 0, borderWidth: 2, tension: 0.3, yAxisID: "y" },
+              { label: "Rainfall (mm)", type: "bar", data: rn.map((p: any) => p.rain), backgroundColor: "rgba(85,85,85,0.45)", borderWidth: 1.5, borderColor: txtColor, yAxisID: "y1" } as any,
             ],
           },
           options: {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: "index", intersect: false },
-            plugins: { legend: { labels: { color: "#000", font: { size: 10, weight: "bold", family: "monospace" } } } },
+            plugins: { legend: { labels: { color: txtColor, font: { size: 10, weight: "bold", family: "monospace" } } } },
             scales: {
-              x: { ticks: { color: "#555", font: { size: 9, family: "monospace" } }, grid: { color: "#eee" } },
-              y: { min: 0, max: 1.0, ticks: { color: "#555", font: { size: 9, family: "monospace" } }, grid: { color: "#eee" }, title: { display: true, text: "NDVI", color: "#000", font: { size: 10, weight: "bold" } } },
-              y1: { position: "right", ticks: { color: "#555", font: { size: 9, family: "monospace" } }, grid: { display: false }, title: { display: true, text: "Rainfall (mm)", color: "#000", font: { size: 10, weight: "bold" } } },
+              x: { ticks: { color: dimColor, font: { size: 9, family: "monospace" } }, grid: { color: gridColor } },
+              y: { min: 0, max: 1.0, ticks: { color: dimColor, font: { size: 9, family: "monospace" } }, grid: { color: gridColor }, title: { display: true, text: "NDVI", color: txtColor, font: { size: 10, weight: "bold" } } },
+              y1: { position: "right", ticks: { color: dimColor, font: { size: 9, family: "monospace" } }, grid: { display: false }, title: { display: true, text: "Rainfall (mm)", color: txtColor, font: { size: 10, weight: "bold" } } },
             },
           },
         } as any);
@@ -283,7 +302,7 @@ export default function LatticeDashboard() {
     });
 
     return () => { if (chartInstance) chartInstance.destroy(); };
-  }, [loading, domain, gridSys, agroSys]);
+  }, [loading, domain, gridSys, agroSys, darkMode]);
 
   // Scroll chat
   useEffect(() => { msgsEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMsgs]);
@@ -355,7 +374,6 @@ export default function LatticeDashboard() {
     { id: "primary", icon: <Activity className="w-4 h-4" />, label: "Shed Priority" },
     { id: "tx", icon: <Cpu className="w-4 h-4" />, label: "Transformers" },
     { id: "wi", icon: <Sliders className="w-4 h-4" />, label: "What-If" },
-    { id: "acc", icon: <Gauge className="w-4 h-4" />, label: "Acceleration" },
     { id: "chat", icon: <MessageSquareCode className="w-4 h-4" />, label: "Copilot" },
   ];
 
@@ -363,7 +381,6 @@ export default function LatticeDashboard() {
     { id: "primary", icon: <MapPin className="w-4 h-4" />, label: "Advisory Priority" },
     { id: "trig", icon: <Shield className="w-4 h-4" />, label: "Insurance Triggers" },
     { id: "wi", icon: <Droplets className="w-4 h-4" />, label: "Allocate Water" },
-    { id: "acc", icon: <Gauge className="w-4 h-4" />, label: "Acceleration" },
     { id: "chat", icon: <MessageSquareCode className="w-4 h-4" />, label: "Copilot" },
   ];
 
@@ -421,7 +438,7 @@ export default function LatticeDashboard() {
                 Lattice
               </h1>
               <p className="text-[13px] md:text-[14px] font-semibold uppercase tracking-wider text-dim mt-2">
-                GPU-Accelerated Resource Allocation Engine
+                High-Performance Resource Allocation Engine
               </p>
             </div>
             <button onClick={toggleTheme} className="font-mono text-[10.5px] border-2 border-line bg-panel text-txt px-3 py-1.5 rounded-lg font-bold hover:opacity-85 cursor-pointer shadow-solid-sm active:translate-y-[1px] active:shadow-none transition-all flex items-center gap-1.5">
@@ -480,7 +497,7 @@ export default function LatticeDashboard() {
           <div className="mt-8">
             <div className="font-mono text-[10px] text-faint tracking-widest uppercase font-bold mb-2">Connected Stack</div>
             <div className="flex gap-1.5 flex-wrap">
-              {["Cloud Storage", "BigQuery", "Cloud Run", "Vertex AI", "Dataproc Spark", "RAPIDS cudf.pandas", "CuPy", "XGBoost-GPU", "NVIDIA GPUs"].map((s, i) => (
+              {["Cloud Storage", "BigQuery", "Cloud Run", "Vertex AI", "Dataproc Spark", "XGBoost", "FastAPI", "Pandas", "Scikit-Learn"].map((s, i) => (
                 <span key={i} className="font-mono text-[10px] border-2 border-line bg-panel px-2.5 py-0.5 rounded-lg text-txt font-bold">{s}</span>
               ))}
             </div>
@@ -618,33 +635,7 @@ export default function LatticeDashboard() {
                 <div className="h-[240px]"><canvas ref={chartCanvasRef} /></div>
               </div>
 
-              {/* Pipeline State */}
-              <div className="bg-panel border-2 border-line rounded-[20px] p-4 shadow-solid">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-[9.5px] text-faint tracking-widest uppercase font-bold">Pipeline Execution</span>
-                  <span className="flex items-center gap-2">
-                    <select value={rerunEngine} onChange={e => setRerunEngine(e.target.value)} className="px-2 py-1 text-[11px] border-2 border-line rounded-lg bg-panel text-txt">
-                      <option value="cpu">CPU</option><option value="gpu">GPU</option>
-                    </select>
-                    <button disabled={rerunning} onClick={handleRerun} className="bg-txt text-panel text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border-2 border-line hover:opacity-80 transition-all flex items-center gap-1">
-                      <RefreshCw className={`w-3 h-3 ${rerunning ? "animate-spin" : ""}`} /> {rerunning ? "RUNNING" : "RE-RUN"}
-                    </button>
-                  </span>
-                </div>
-                {timings?.stages && (
-                  <div className="flex h-6 rounded-full border-2 border-line overflow-hidden">
-                    {Object.entries(timings.stages).map(([k, v]: any, idx: number) => {
-                      const total = Object.values(timings.stages).reduce((a: any, b: any) => a + b, 0) as number;
-                      const shades = ["#000", "#222", "#444", "#666", "#888", "#aaa", "#ccc"];
-                      return (
-                        <div key={k} className="flex items-center justify-center text-[8px] text-white font-mono font-bold border-r border-line/30 last:border-0" style={{ flex: Math.max(v / total, 0.05), backgroundColor: shades[idx % shades.length] }} title={`${k}: ${v}s`}>
-                          {k.slice(2)} {v}s
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+
             </div>
 
             {/* Right: Tab Panel */}
@@ -815,25 +806,6 @@ export default function LatticeDashboard() {
                 </div>
               )}
 
-              {/* ─── TAB: Acceleration ─── */}
-              {activeTab === "acc" && benchData && (
-                <div className="animate-tab-fade flex flex-col gap-4">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    {[
-                      { label: "Speedup", val: benchData.summary?.pairs?.at(-1)?.speedup ? `${benchData.summary.pairs.at(-1).speedup}x` : timings?.total_seconds ? `${timings.total_seconds}s` : "--", sub: benchData.summary?.pairs?.at(-1) ? `CPU ${benchData.summary.pairs.at(-1).cpu_s}s / GPU ${benchData.summary.pairs.at(-1).gpu_s}s` : "GPU benchmarks pending" },
-                      { label: "Max Scale", val: `${Math.max(...benchData.runs.filter((r: any) => r.total_seconds).map((r: any) => r.scale_rows / 1e6), 0).toFixed(0)}M`, sub: "rows on GPU" },
-                      { label: "Freshness", val: timings?.fits_in_block ? "IN-BLOCK" : "EXCEEDED", sub: `${timings?.total_seconds}s vs 900s` },
-                      { label: "Decisioning", val: `${(sys?.whatif_bench?.plans_per_second || sys?.allocate_bench?.plans_per_second || 0).toLocaleString()}/s`, sub: "heuristic candidates" },
-                    ].map((p, i) => (
-                      <div key={i} className="bg-panel border-2 border-line p-3 rounded-xl">
-                        <div className="font-mono text-[8px] uppercase font-bold text-dim">{p.label}</div>
-                        <div className="font-sans font-extrabold text-[20px] text-txt mt-0.5">{p.val}</div>
-                        <div className="text-[9px] text-faint mt-0.5">{p.sub}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* ─── TAB: Copilot Chat ─── */}
               {activeTab === "chat" && (

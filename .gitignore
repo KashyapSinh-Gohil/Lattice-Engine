@@ -1,36 +1,11 @@
-# Python caches
-__pycache__/
-*.pyc
-*.log
-
-# Datasets & Outputs
-data/
-!data/city_1m/
-!data/agro_1m/
-out/
-!api/data/
-!api/data_agro/
-
-# Frontend builds & dependencies
 node_modules/
 .next/
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-
-# Environments and sensitive credentials
+out/
+data/
+api/data/
+api/data_agro/
+venv/
+__pycache__/
 .env
-.env.*
-*.json
-!package.json
-!tsconfig.json
-!next.config.json
-!api/data/*.json
-!api/data_agro/*.json
-!bench/*.json
-
-# Service account private keys specifically
-*-*.json
-
-# OS files
 .DS_Store
+*.log

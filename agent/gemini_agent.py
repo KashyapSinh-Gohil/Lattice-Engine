@@ -20,7 +20,7 @@ import re
 from typing import Any, Callable
 
 MODEL = os.environ.get("VAJRA_GEMINI_MODEL", os.environ.get("AEGIS_GEMINI_MODEL",
-                                                            "gemini-2.0-flash"))
+                                                            "gemini-2.5-flash"))
 
 SYSTEM = """You are VAJRA·GRID Copilot, the decision assistant inside a DISCOM load-dispatch
 control room. The operator is managing a heatwave peak-demand emergency.
