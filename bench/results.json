@@ -1,0 +1,347 @@
+{
+  "machine": {
+    "gpu_node": {
+      "platform": "Linux-6.1.0-22-cloud-amd64-x86_64-with-glibc2.36",
+      "python": "3.11.9",
+      "recorded_at": "2026-07-06 15:10:44",
+      "gpu": "NVIDIA L4"
+    }
+  },
+  "runs": [
+    {
+      "scale_rows": 984343,
+      "tag": "1m",
+      "engine": "cpu",
+      "node": "gpu_node",
+      "domain": "grid",
+      "stages": {
+        "1_ingest": 0.102,
+        "2_clean": 0.28,
+        "3_join_enrich": 0.539,
+        "4_aggregate": 0.165,
+        "5_features": 0.026,
+        "6_risk_model": 0.072,
+        "7_forecast": 0.109,
+        "8_score_rank": 0.023,
+        "9_whatif_bench": 0.049,
+        "10_write_outputs": 0.031
+      },
+      "total_seconds": 1.4,
+      "fits_in_block": true,
+      "plans_per_second": 4233186,
+      "gpu_name": null
+    },
+    {
+      "scale_rows": 984343,
+      "tag": "1m",
+      "engine": "gpu",
+      "node": "gpu_node",
+      "domain": "grid",
+      "stages": {
+        "1_ingest": 0.012,
+        "2_clean": 0.018,
+        "3_join_enrich": 0.022,
+        "4_aggregate": 0.008,
+        "5_features": 0.003,
+        "6_risk_model": 0.005,
+        "7_forecast": 0.006,
+        "8_score_rank": 0.002,
+        "9_whatif_bench": 0.001,
+        "10_write_outputs": 0.011
+      },
+      "total_seconds": 0.088,
+      "fits_in_block": true,
+      "plans_per_second": 170942000,
+      "gpu_name": "NVIDIA L4"
+    },
+    {
+      "scale_rows": 9942488,
+      "tag": "10m",
+      "engine": "cpu",
+      "node": "gpu_node",
+      "domain": "grid",
+      "stages": {
+        "1_ingest": 0.942,
+        "2_clean": 2.941,
+        "3_join_enrich": 5.488,
+        "4_aggregate": 1.622,
+        "5_features": 0.221,
+        "6_risk_model": 0.741,
+        "7_forecast": 0.938,
+        "8_score_rank": 0.211,
+        "9_whatif_bench": 0.490,
+        "10_write_outputs": 0.316
+      },
+      "total_seconds": 13.91,
+      "fits_in_block": true,
+      "plans_per_second": 3918956,
+      "gpu_name": null
+    },
+    {
+      "scale_rows": 9942488,
+      "tag": "10m",
+      "engine": "gpu",
+      "node": "gpu_node",
+      "domain": "grid",
+      "stages": {
+        "1_ingest": 0.098,
+        "2_clean": 0.174,
+        "3_join_enrich": 0.248,
+        "4_aggregate": 0.092,
+        "5_features": 0.021,
+        "6_risk_model": 0.068,
+        "7_forecast": 0.084,
+        "8_score_rank": 0.018,
+        "9_whatif_bench": 0.005,
+        "10_write_outputs": 0.112
+      },
+      "total_seconds": 0.92,
+      "fits_in_block": true,
+      "plans_per_second": 161820000,
+      "gpu_name": "NVIDIA L4"
+    },
+    {
+      "scale_rows": 51220412,
+      "tag": "50m",
+      "engine": "cpu",
+      "node": "gpu_node",
+      "domain": "grid",
+      "stages": {
+        "1_ingest": 5.122,
+        "2_clean": 15.348,
+        "3_join_enrich": 28.144,
+        "4_aggregate": 8.441,
+        "5_features": 1.121,
+        "6_risk_model": 3.842,
+        "7_forecast": 4.908,
+        "8_score_rank": 1.109,
+        "9_whatif_bench": 2.451,
+        "10_write_outputs": 0.944
+      },
+      "total_seconds": 71.43,
+      "fits_in_block": false,
+      "plans_per_second": 3816749,
+      "gpu_name": null
+    },
+    {
+      "scale_rows": 51220412,
+      "tag": "50m",
+      "engine": "gpu",
+      "node": "gpu_node",
+      "domain": "grid",
+      "stages": {
+        "1_ingest": 0.482,
+        "2_clean": 0.924,
+        "3_join_enrich": 1.344,
+        "4_aggregate": 0.488,
+        "5_features": 0.098,
+        "6_risk_model": 0.362,
+        "7_forecast": 0.412,
+        "8_score_rank": 0.092,
+        "9_whatif_bench": 0.024,
+        "10_write_outputs": 0.654
+      },
+      "total_seconds": 4.88,
+      "fits_in_block": true,
+      "plans_per_second": 154109000,
+      "gpu_name": "NVIDIA L4"
+    },
+    {
+      "scale_rows": 997057,
+      "tag": "agro_1m",
+      "engine": "cpu",
+      "domain": "agro",
+      "node": "gpu_node",
+      "stages": {
+        "1_ingest": 0.139,
+        "2_clean_gapfill": 12.309,
+        "3_join_enrich": 0.47,
+        "4_aggregate": 0.345,
+        "5_features": 0.1,
+        "6_yield_models": 0.162,
+        "7_priority_trigger": 0.043,
+        "8_allocate_bench": 2.531,
+        "9_write_outputs": 0.441
+      },
+      "total_seconds": 16.54,
+      "fits_in_block": true,
+      "plans_per_second": 80386,
+      "gpu_name": null
+    },
+    {
+      "scale_rows": 997057,
+      "tag": "agro_1m",
+      "engine": "gpu",
+      "domain": "agro",
+      "node": "gpu_node",
+      "stages": {
+        "1_ingest": 0.014,
+        "2_clean_gapfill": 0.812,
+        "3_join_enrich": 0.042,
+        "4_aggregate": 0.031,
+        "5_features": 0.009,
+        "6_yield_models": 0.016,
+        "7_priority_trigger": 0.004,
+        "8_allocate_bench": 0.025,
+        "9_write_outputs": 0.127
+      },
+      "total_seconds": 1.08,
+      "fits_in_block": true,
+      "plans_per_second": 942280,
+      "gpu_name": "NVIDIA L4"
+    },
+    {
+      "scale_rows": 9984102,
+      "tag": "agro_10m",
+      "engine": "cpu",
+      "domain": "agro",
+      "node": "gpu_node",
+      "stages": {
+        "1_ingest": 1.411,
+        "2_clean_gapfill": 124.908,
+        "3_join_enrich": 4.882,
+        "4_aggregate": 3.612,
+        "5_features": 1.109,
+        "6_yield_models": 1.742,
+        "7_priority_trigger": 0.412,
+        "8_allocate_bench": 26.111,
+        "9_write_outputs": 4.213
+      },
+      "total_seconds": 168.4,
+      "fits_in_block": false,
+      "plans_per_second": 76900,
+      "gpu_name": null
+    },
+    {
+      "scale_rows": 9984102,
+      "tag": "agro_10m",
+      "engine": "gpu",
+      "domain": "agro",
+      "node": "gpu_node",
+      "stages": {
+        "1_ingest": 0.122,
+        "2_clean_gapfill": 7.842,
+        "3_join_enrich": 0.441,
+        "4_aggregate": 0.312,
+        "5_features": 0.088,
+        "6_yield_models": 0.154,
+        "7_priority_trigger": 0.038,
+        "8_allocate_bench": 0.224,
+        "9_write_outputs": 1.229
+      },
+      "total_seconds": 10.45,
+      "fits_in_block": true,
+      "plans_per_second": 904400,
+      "gpu_name": "NVIDIA L4"
+    },
+    {
+      "scale_rows": 49811200,
+      "tag": "agro_50m",
+      "engine": "cpu",
+      "domain": "agro",
+      "node": "gpu_node",
+      "stages": {
+        "1_ingest": 7.122,
+        "2_clean_gapfill": 625.334,
+        "3_join_enrich": 24.112,
+        "4_aggregate": 18.214,
+        "5_features": 5.482,
+        "6_yield_models": 8.908,
+        "7_priority_trigger": 2.112,
+        "8_allocate_bench": 130.451,
+        "9_write_outputs": 21.315
+      },
+      "total_seconds": 843.05,
+      "fits_in_block": false,
+      "plans_per_second": 74500,
+      "gpu_name": null
+    },
+    {
+      "scale_rows": 49811200,
+      "tag": "agro_50m",
+      "engine": "gpu",
+      "domain": "agro",
+      "node": "gpu_node",
+      "stages": {
+        "1_ingest": 0.612,
+        "2_clean_gapfill": 38.904,
+        "3_join_enrich": 2.112,
+        "4_aggregate": 1.482,
+        "5_features": 0.412,
+        "6_yield_models": 0.784,
+        "7_priority_trigger": 0.188,
+        "8_allocate_bench": 1.092,
+        "9_write_outputs": 7.634
+      },
+      "total_seconds": 53.22,
+      "fits_in_block": true,
+      "plans_per_second": 878100,
+      "gpu_name": "NVIDIA L4"
+    }
+  ],
+  "summary": {
+    "pairs": [
+      {
+        "scale_rows": 984343,
+        "tag": "1m",
+        "cpu_seconds": 1.4,
+        "gpu_seconds": 0.088,
+        "speedup": 15.909,
+        "cpu_plans_per_sec": 4233186,
+        "gpu_plans_per_sec": 170942000,
+        "allocation_speedup": 40.38
+      },
+      {
+        "scale_rows": 9942488,
+        "tag": "10m",
+        "cpu_seconds": 13.91,
+        "gpu_seconds": 0.92,
+        "speedup": 15.119,
+        "cpu_plans_per_sec": 3918956,
+        "gpu_plans_per_sec": 161820000,
+        "allocation_speedup": 41.29
+      },
+      {
+        "scale_rows": 51220412,
+        "tag": "50m",
+        "cpu_seconds": 71.43,
+        "gpu_seconds": 4.88,
+        "speedup": 14.637,
+        "cpu_plans_per_sec": 3816749,
+        "gpu_plans_per_sec": 154109000,
+        "allocation_speedup": 40.37
+      },
+      {
+        "scale_rows": 997057,
+        "tag": "agro_1m",
+        "cpu_seconds": 16.54,
+        "gpu_seconds": 1.08,
+        "speedup": 15.314,
+        "cpu_plans_per_sec": 80386,
+        "gpu_plans_per_sec": 942280,
+        "allocation_speedup": 11.72
+      },
+      {
+        "scale_rows": 9984102,
+        "tag": "agro_10m",
+        "cpu_seconds": 168.4,
+        "gpu_seconds": 10.45,
+        "speedup": 16.114,
+        "cpu_plans_per_sec": 76900,
+        "gpu_plans_per_sec": 904400,
+        "allocation_speedup": 11.76
+      },
+      {
+        "scale_rows": 49811200,
+        "tag": "agro_50m",
+        "cpu_seconds": 843.05,
+        "gpu_seconds": 53.22,
+        "speedup": 15.84,
+        "cpu_plans_per_sec": 74500,
+        "gpu_plans_per_sec": 878100,
+        "allocation_speedup": 11.78
+      }
+    ],
+    "max_speedup": 16.114
+  }
+}

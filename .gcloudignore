@@ -1,0 +1,33 @@
+.gcloudignore
+.git
+.gitignore
+
+# Ignore node_modules and python caches
+node_modules/
+__pycache__/
+*.pyc
+.env
+*.log
+.DS_Store
+
+# Ignore heavy frontend folders (we already built to web/)
+frontend/
+
+# Ignore raw data folders except the ones needed by Dockerfile
+data/agro_smoke/
+data/bench/
+out/
+
+# Ignore environments and credentials
+.env
+.env.*
+*.json
+!package.json
+!tsconfig.json
+!next.config.json
+!api/data/*.json
+!api/data_agro/*.json
+!bench/*.json
+
+# Service account private keys specifically
+*-*.json

@@ -1,0 +1,30 @@
+{
+  "engine": "cpu",
+  "env": {
+    "engine": "cpu",
+    "python": "3.10.12",
+    "cudf": null,
+    "gpu_name": null,
+    "cupy": false,
+    "pandas": "2.3.3"
+  },
+  "rows_in": 1012378,
+  "rows_clean": 998400,
+  "stages": {
+    "1_ingest": 0.109,
+    "2_clean": 0.303,
+    "3_join_enrich": 0.572,
+    "4_aggregate": 0.161,
+    "5_features": 0.019,
+    "6_risk_model": 0.211,
+    "7_forecast": 0.311,
+    "8_score_rank": 0.023,
+    "9_whatif_bench": 0.054,
+    "10_write_outputs": 0.037
+  },
+  "total_seconds": 1.8,
+  "dispatch_block_seconds": 900,
+  "fits_in_block": true,
+  "blocks_needed": 1,
+  "whatif_plans_per_second": 3830080
+}

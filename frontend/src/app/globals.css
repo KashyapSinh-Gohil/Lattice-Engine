@@ -1,0 +1,135 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --bg: #fafafa;
+  --panel: #ffffff;
+  --line: #000000;
+  --txt: #000000;
+  --dim: #555555;
+  --faint: #888888;
+  --accent: #000000;
+  --amber: #f2a104;
+  --red: #d9383a;
+  --green: #2b9348;
+  --nv: #76b900;
+  --gcp: #4285f4;
+  --violet: #8b5cf6;
+  --mono: 'JetBrains Mono', monospace;
+  --dots: #e0e0e0;
+}
+
+.dark {
+  --bg: #0a0a0a;
+  --panel: #121212;
+  --line: #ffffff;
+  --txt: #ffffff;
+  --dim: #a0a0a0;
+  --faint: #666666;
+  --accent: #ffffff;
+  --dots: #222222;
+}
+
+body {
+  background: var(--bg);
+  color: var(--txt);
+  background-image: radial-gradient(var(--dots) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 9999px;
+}
+
+/* Animations */
+@keyframes morphRotate {
+  0% {
+    transform: rotate(0deg);
+    width: 64px;
+    height: 24px;
+  }
+  25% {
+    width: 24px;
+    height: 24px;
+  }
+  50% {
+    transform: rotate(180deg);
+    width: 24px;
+    height: 64px;
+  }
+  75% {
+    width: 24px;
+    height: 24px;
+  }
+  100% {
+    transform: rotate(360deg);
+    width: 64px;
+    height: 24px;
+  }
+}
+
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-morph {
+  animation: morphRotate 1.6s infinite cubic-bezier(0.68, -0.6, 0.32, 1.6);
+}
+
+.animate-pulse-opacity {
+  animation: pulseOpacity 1.2s infinite ease-in-out;
+}
+
+.animate-pulse-dot {
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+.animate-tab-fade {
+  animation: tabFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Leaflet Map overrides for B&W theme */
+.leaflet-container {
+  font-family: inherit !important;
+}
+.leaflet-tooltip {
+  background: var(--panel) !important;
+  border: 2px solid var(--line) !important;
+  border-radius: 12px !important;
+  box-shadow: 4px 4px 0px var(--line) !important;
+  color: var(--txt) !important;
+  font-size: 11px !important;
+  font-family: var(--mono) !important;
+  padding: 8px 12px !important;
+}
+
+/* Custom B&W Utility Classes for solid light/dark styling */
+.bg-panel { background-color: var(--panel) !important; }
+.border-line { border-color: var(--line) !important; }
+.text-txt { color: var(--txt) !important; }
+.text-dim { color: var(--dim) !important; }
+.text-faint { color: var(--faint) !important; }
+.shadow-solid { box-shadow: 4px 4px 0px var(--line) !important; }
+.shadow-solid-lg { box-shadow: 6px 6px 0px var(--line) !important; }
+.shadow-solid-sm { box-shadow: 2px 2px 0px var(--line) !important; }
+
