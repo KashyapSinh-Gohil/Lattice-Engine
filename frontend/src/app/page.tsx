@@ -158,7 +158,7 @@ export default function LatticeDashboard() {
 
       if (!mapInstanceRef.current) {
         const map = L.map(mapEl, { zoomControl: false, attributionControl: false })
-          .setView([22.30, 70.80], 9);
+          .setView([23.0300, 72.5800], 11);
         L.tileLayer(darkMode
           ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -193,12 +193,12 @@ export default function LatticeDashboard() {
       lastDomainRef.current = domain;
 
       if (domain === "grid") {
-        const fciColor = (f: number) => f > 0.8 ? "#d9383a" : f > 0.5 ? "#f2a104" : "#2b9348";
+        const fciColor = (f: number) => f > 0.8 ? "#ef4444" : f > 0.5 ? "#f59e0b" : "#10b981"; // Vibrant Tailwind colors
         feeders.slice(0, 400).forEach((f, idx) => {
           const isSel = selectedFeederId === f.feeder_id;
           const poly = L.polygon(getPolygonPoints(f.lat, f.lon, 500 + f.current_mw * 90, idx, 6), {
-            color: isSel ? "#000000" : "#555555", weight: isSel ? 3.5 : 1,
-            fillColor: fciColor(f.fci), fillOpacity: isSel ? 0.9 : 0.45,
+            color: isSel ? (darkMode ? "#ffffff" : "#000000") : (darkMode ? "#444444" : "#aaaaaa"), weight: isSel ? 3.5 : 1,
+            fillColor: fciColor(f.fci), fillOpacity: isSel ? 0.9 : 0.6,
           });
           poly.bindTooltip(`<b>${f.name}</b> (${f.feeder_id})<br/>FCI: <b>${f.fci.toFixed(2)}</b><br/>Load: ${f.current_mw.toFixed(1)} MW<br/>Outages: ${f.failure_history?.length || 0}${f.protected_class ? "<br/><b style='color:#d9383a'>PROTECTED</b>" : ""}`, { direction: "top", opacity: 0.95 });
           poly.on("click", () => { setSelectedFeederId(f.feeder_id); });
@@ -207,14 +207,14 @@ export default function LatticeDashboard() {
             lg.addLayer(L.marker([f.lat, f.lon], { icon: L.divIcon({ className: "", html: `<div style="font-size:10px;font-weight:bold;color:#d9383a">★</div>`, iconSize: [12, 12] }) }));
           }
         });
-        if (isDomainSwitch) map.setView([22.2587, 71.1924], 9);
+        if (isDomainSwitch) map.setView([23.0300, 72.5800], 11); // Center on Ahmedabad for grid
       } else {
-        const vapiColor = (v: number) => v > 0.6 ? "#d9383a" : v > 0.38 ? "#f2a104" : "#2b9348";
+        const vapiColor = (v: number) => v > 0.6 ? "#ef4444" : v > 0.38 ? "#f59e0b" : "#3b82f6"; // Blue for well-watered, red for high priority
         villages.slice(0, 600).forEach((v, idx) => {
           const isSel = selectedVillageId === v.village_id;
           const poly = L.polygon(getPolygonPoints(v.lat, v.lon, 300 + Math.sqrt(v.area_ha) * 35, idx, 8), {
-            color: isSel ? "#000000" : "#333333", weight: isSel ? 3.5 : 1.2,
-            fillColor: vapiColor(v.vapi), fillOpacity: isSel ? 0.85 : 0.45,
+            color: isSel ? (darkMode ? "#ffffff" : "#000000") : (darkMode ? "#444444" : "#aaaaaa"), weight: isSel ? 3.5 : 1.2,
+            fillColor: vapiColor(v.vapi), fillOpacity: isSel ? 0.85 : 0.6,
           });
           poly.bindTooltip(`<b>${v.name}</b> (${v.village_id})<br/>VAPI: <b>${v.vapi.toFixed(2)}</b> · Reach: ${v.canal_reach}<br/>Yield: ${v.yield_pred}/${v.normal_yield} t/ha${v.insurance_trigger ? "<br/><b style='color:#d9383a'>INSURANCE TRIGGER-HIT</b>" : ""}`, { direction: "top", opacity: 0.95 });
           poly.on("click", () => { setSelectedVillageId(v.village_id); });
@@ -223,7 +223,7 @@ export default function LatticeDashboard() {
             lg.addLayer(L.marker([v.lat, v.lon], { icon: L.divIcon({ className: "", html: `<div style="font-size:9px;font-weight:bold;color:#000;background:#fff;border:1px solid #000;padding:0 4px;border-radius:3px;box-shadow:2px 2px 0 #000">TAIL</div>`, iconSize: [30, 10] }) }));
           }
         });
-        if (isDomainSwitch) map.setView([22.30, 70.80], 9);
+        if (isDomainSwitch) map.setView([22.0, 70.9], 8); // Broader view covering multiple Saurashtra districts
       }
     });
   }, [loading, domain, feeders, villages, selectedFeederId, selectedVillageId, darkMode]);
